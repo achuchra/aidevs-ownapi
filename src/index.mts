@@ -2,7 +2,9 @@ import exp from 'constants';
 import * as dotenv from 'dotenv';
 import express from 'express';
 import { ChatOpenAI } from "langchain/chat_models/openai";
-import { HumanMessage, SystemMessage } from 'langchain/schema';
+import { BaseMessageChunk, HumanMessage, SystemMessage } from 'langchain/schema';
+import { informationSchema, questionSchema } from './function-schemas.mjs';
+import { functions } from './function-implementations.mjs';
 
 dotenv.config();
 
@@ -21,6 +23,24 @@ const initalize = async () => {
       new HumanMessage(question),  
     ])
     res.status(200).send({ reply: content });
+  });
+
+  app.post('/call-gpt-pro', async (req, res) => {
+    const { question } = req.body as { question: string };
+
+    const model = new ChatOpenAI({ modelName: "gpt-4-0613" })
+      .bind({ functions: [questionSchema, informationSchema] });
+
+    const result = (await model.invoke([new HumanMessage(question)])) as BaseMessageChunk;
+    if (result?.additional_kwargs?.function_call) {
+      const name = result.additional_kwargs.function_call.name as "parseQuestion" | "parseInformation";
+      const args = JSON.parse(result.additional_kwargs.function_call.arguments) as { arg: string };
+
+      const reply = await functions[name](args.arg);
+      res.status(200).send({ reply });
+    } else {
+      res.status(200).send({ reply: "Something wen wrong" });
+    }
   });
 
   app.listen(3000, () => {
