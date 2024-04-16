@@ -20,7 +20,7 @@ const parseQuestion = async (question:string): Promise<MessageContent | null> =>
   const chat = new ChatOpenAI({ modelName: "gpt-4" });
 
   const { content } = await chat.invoke([
-    new SystemMessage(`Answer the question based on the context provided. Make sure that you only answer when you are sure. If you are not sure about the answer, send "I dont know" message. \n
+    new SystemMessage(`Answer the question. If you don't know the answer from your knowledge please use the context provided below. \n
     ###CONTEXT###\n
     ${context}`),
     new HumanMessage(question),

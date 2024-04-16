@@ -1,6 +1,6 @@
 export const questionSchema = {
   "name": "parseQuestion",
-  "description": "Call this function to parse a question",
+  "description": "Call this function when a message expects you to provide an answer",
   "parameters": {
     "type": "object",
     "properties": {
@@ -14,7 +14,7 @@ export const questionSchema = {
 
 export const informationSchema = {
   "name": "parseInformation",
-  "description": "Call this function to parse information",
+  "description": "Call this function when a message provides some information to you.",
   "parameters": {
     "type": "object",
     "properties": {
